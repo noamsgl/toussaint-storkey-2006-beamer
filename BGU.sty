@@ -72,19 +72,32 @@
 \setbeamercolor{structure}{fg=qut}
 \setbeamercolor{subsection in sidebar}{fg=brown}
 \setbeamercolor{subsection in sidebar shaded}{fg=grey}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+% \setbeamercolor{block title alerted}{fg=black}
+
+%title
+\setbeamercolor{block title alerted}{fg=white,bg=brown}
+%body
+\setbeamercolor{block body alerted}{fg=black!90,bg=brown!60!yellow}
+% parent of all alerts default is red
+\setbeamercolor{alerted text}{fg=black}
+
+
+\AtBeginSection[]{
+	\begin{frame}<beamer>
+		\tableofcontents[sectionstyle=show/shaded,subsectionstyle=show/show/hide, subsubsectionstyle=show/shaded/hide]
+	\end{frame}
+}
+
 % \AtBeginSection[]{
 % 	\begin{frame}
 % 		\tableofcontents[sectionstyle=show/shaded,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
 % 	\end{frame}
 % }
 
-\setbeamertemplate{blocks}[rounded][shadow=true]
 
-\AtBeginSection[]{
-	\begin{frame}
-		\tableofcontents[sectionstyle=show/shaded,subsectionstyle=show/show/hide, subsubsectionstyle=show/shaded/hide]
-	\end{frame}
-}
 % \AtBeginSubsection[]{
 % 	\begin{frame}
 % 		\tableofcontents[sectionstyle=show/shaded,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
