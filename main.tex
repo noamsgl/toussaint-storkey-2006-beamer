@@ -1,4 +1,14 @@
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Seminar Presentation about the Paper
+%%%% Toussaint, Marc, and Amos Storkey. "Probabilistic inference for solving discrete and continuous state Markov Decision Processes." Proceedings of the 23rd international conference on Machine learning. 2006.
+%%
+%% Presented for Computer Science M.Sc. Seminar @ Ben Gurion University
+%% Slides and notes written by Noam Siegel <noamsglrkr@gmail.com>
+%%
+%% ---------------------------------------------------------- %%
+%% Licensed under Creative Commons Attribution-ShareAlike 3.0 %%
+%% http://creativecommons.org/licenses/by-sa/3.0/             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%% PREAMBLE
 \documentclass[]{beamer}
 % \usepackage{pgfpages}
@@ -6,6 +16,12 @@
 % \pgfpagesuselayout{4 on 1 with notes}[a4paper,border shrink=5mm]
 % \pgfpagesuselayout{4 on 1}[a4paper,border shrink=5mm]
 %%%%%%%%%%%%%%%%%%%%%%%% PREAMBLE
+\usepackage[
+    type={CC},
+    modifier={by-nc-sa},
+    version={3.0},
+]{doclicense}
+
 \usepackage[T1]{fontenc}
 \UseRawInputEncoding
 \usepackage{graphicx, calligra}
@@ -87,12 +103,12 @@
 \newcommand{\policy}{\ensuremath{\boldsymbol{\pi}}}
 
 \theoremstyle{definition}
-% \newtheorem{definition}{Definition}[section]
 \newtheorem*{fct}{Fact}
 \newtheorem*{hwv}{However}
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
-% Allows repeating frame contents (duplicating boxes)
+
+%%%% Allows repeating frame contents (duplicating boxes)
 % https://tex.stackexchange.com/questions/107237/repeating-frame-contents
 \newcommand\dupbox[2][]{%
 \begin{block}{\duptitle}
@@ -120,6 +136,9 @@
 % \usecolortheme{default}
 
 
+%% Enable license helpers
+\input{cc_beamer}
+
 %%%% HEADER
 \title[Probabilistic Inference for Solving MDPs]{Probabilistic Inference for Solving \\Markov Decision Processes}
 \subtitle{Toussaint, Storkey, ICML '06}
@@ -129,7 +148,6 @@
 Ben Gurion University}
 \date{\today}
 
-
 %%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%
 \begin{document}
 
@@ -137,10 +155,17 @@ Ben Gurion University}
 
 \begin{frame}
 	\titlepage
-% 	\note[item]{Thank the audience for being awake.}
+	\vfill
+	\begin{center}
+		\CcGroupByNcSa{0.83}{0.95ex}\\[.5ex]
+% 		{\tiny\CcNote{\CcLongnameByNcSa}}
+% 		\vspace*{-2.5ex}
+	\end{center}
+    % 	\note[item]{Thank the audience for being awake.}
 	\note[item]{Prepare markers and eraser, erase the board.}
 	\note[item]{Reset the timer.}
 \end{frame}
+%%%%%%%%%%%%% License %%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%% TOC %%%%%%%%%%%%%%
@@ -187,9 +212,10 @@ Ben Gurion University}
         \item \emph{Verma and Rao (2006)} used inference to compute plans, but again $T$ has to be fixed and the plan is not optimal.
     \end{enumerate}
     
-	\note[item]{existing ways to deal with challenges in each field: Factored MDPs or abstractions (in planning), approximate inference (inference).}
-	\note[item]{describe and mention previous approaches to merging planning and inference, and mention their limitations.}
-	\note[item]{Not optimal in the sense of maximizing an expected future reward}
+	\note[item]{previous approaches to merging planning in stochastic environments and probabilistic inference did not achieve optimal policies, and required fixing the episode length $T$ ahead of time.}
+% 	\note[item]{Not optimal in the sense of maximizing an expected future reward}
+	\note[item]{+++:existing ways to deal with challenges in each field: Factored MDPs or abstractions (in planning), approximate inference (inference).}
+
 \end{frame}
 
 \subsection{Main contribution}
@@ -197,12 +223,11 @@ Ben Gurion University}
 	\begin{alertblock}{Contribution}
 		\begin{enumerate}[<+-|alert@+>]
 			\item Translate the problem of \emph{maximizing the expected future return} exactly into a problem of \emph{likelihood maximization in a latent variable model}, for arbitrary reward functions and episode lengths.
-			\item Demonstrate the approach on discrete \& continuous stochastic optimal control problems,
+			\item Demonstrate the approach on \emph{both discrete \& continuous} stochastic optimal control problems.
 		\end{enumerate}
 	\end{alertblock}
 	\note<1>[item]{first contrib.: provide a framework that translates the problem of maximizing the expected future return exactly into a problem of likelihood maximization in a latent variable mixture model, for arbitrary rewards functions and without assuming a fixed time}
 	\note<2>[item]{second contrib.: demonstrate the approach first on a discrete maze problem, then on a continuous stochastic optimal control problem.}
-	\note<2>[item]{In the discrete maze we will use exact inference in the E-step, and in the continuous case we will assume Gaussian belief state representations and use the unscented transform to handle non-linear dynamics.}
 \end{frame}
 
 
@@ -217,8 +242,9 @@ Ben Gurion University}
         \caption{Posterior state-visiting-probabilities generated by our Probabilistic Infernce Planner (PIP)}
         \label{fig:my_label}
     \end{figure}
-	\note[item]{This figure is the posterior state-visiting-probabilities generated by our probabilistic inference planner (PIP) for a problem where rewards are given when some goal state is reached.}
-	\note[item]{This is the image I want you to have in mind.}
+	\note[item]{But first, an example. This is the image I want you to have in mind when thinking about control problems. The grid is 100x100, one of the states is a starting state, and one of the states is a reward state. The walls are traps and if the agent hits them, the episode is terminated. The goal of the agent is to learn the optimal policy, which is shown along this path.}
+	\note[item]{Walls of the maze are considered to be trap states (leading to unsuccessful trials) and actions (north, south, east, west, stay) are highly noisy in that with a probability of 0.2 they lead to random transitions.}
+	\note[item]{+++: This figure is the posterior state-visiting-probabilities generated by our probabilistic inference planner (PIP) for a problem where rewards are given when some goal state is reached.}
 \end{frame}
 
 \begin{frame}<1-3>{Markov Decision Processes}
@@ -229,7 +255,7 @@ Ben Gurion University}
 	\begin{definition}[MDP]
 		\begin{smashedalign}
 			\text{state transition probability } &P(x_{t+1} \mid a_t, x_t)\\
-			\text{reward probability } &P(r_t \mid a_t; x_t), \quad \quad r_t \in \{0, 1\} \\
+			\text{reward probability } &P(r_t \mid a_t, x_t), \quad \quad r_t \in \{0, 1\} \\
 			\text{action probability } &P(a_t \mid x_t; \policy), \quad \quad \policy \text{ a parameter}
 		\end{smashedalign}
 	\end{definition}
@@ -242,16 +268,18 @@ Ben Gurion University}
 	    \end{equation*}
 	\end{definition}
 	}
-	\note<1>[item]{This is an unrolled Dynamic Bayesian Network. Each node is a random variable, and each arrow denotes a causal relationship.}
-    \note<1>[item]{The graph encodes conditional independence relations between sets of variables. Examples ($a_1 \bot a_0 \mid x_1$). These conditional independencies are what allow us to factor the probability distribution into fewer factors.}
+	\note{WRITE MDP Input Functions on the Board!}
+	\note<1>[item]{So, let's remember the definition of a Markov Decision Process:}
+	\note<1>[item]{State transition probability is the same as usual, where the states and actions can be either continuous or discrete.}
 	\note<1>[item]{The r.v.s $x$ and $a$ can be either discrete or continuous}
 	\note<1>[item]{The reward variable $r$ is, w.l.g. assumed to be binary, $r_t \in \{0, 1\}$}
-	\note<2>[item]{So, let's remember the definition of a Markov Decision Process:}
-	\note<2>[item]{State transition probability is the same as usual, where the states and actions can be either continuous or discrete.}
 	\note<2>[item]{The reward probability is stochastic, and the reward is binary, without loss of generality. Because we can get every expected value between 0 and 1, and rescale if need.}
-	\note<2>[item]{The action probability is dependent on a parameter \policy which we call the Policy.}
+	\note<2>[item]{The action probability $P(a_t \mid x_t ; \policy)$ is parameterized by a policy \policy{} parameter such that $P(a_t \mid x_t = i; \policy) = \pi_{ai}$}
+% 	\note<2>[item]{The action probability is dependent on a parameter \policy which we call the Policy.}
 	\note<2>[item]{Throughout this paper we assume that the state transition and reward probabilities are given to us, i.e. known a priori.}
-	\note<3>[item]{The action probability $P(a_t \mid x_t ; \policy)$ is parameterized by a policy \policy{} parameter such that $P(a_t \mid x_t = i; \policy) = \pi_{ai}$}
+	\note<3>[item]{This is an unrolled Dynamic Bayesian Network. Each node is a random variable, and each arrow denotes a causal relationship.}
+    \note<3>[item]{The graph encodes conditional independence relations between sets of variables. Examples ($a_1 \bot a_0 \mid x_1$). These conditional independencies are what allow us to factor the probability distribution into compact forms.}
+	\note<3>[item]{Our approach is to cast the problem of solving an MDP into a problem of optimizing the parameters of a graphical model, which includes all the future states and actions as latent variables.}
 	\note<1>[item]{+++: w.l.g.: Assuming binary reward variables is sufficient to associate arbitrary reward expectations $P(r_t \mid a_t, x_t)$ in the interval $[0,1]$ to states and actions, which is, modulo rescaling, the general case in Reinforcement Learning scenarios.}
 % 	\note{DRAW Figure 1 on the board!}
 \end{frame}
@@ -289,12 +317,13 @@ Ben Gurion University}
 			\includegraphics[height=\beamer@frametextheight]{figs/fig_2_mixture_mdps.png}
 		}
 	}
-	\note[item]{Our approach is to cast the problem of solving an MDP into a problem of optimizing the parameters of a graphical model with many hidden variables, namely all future states and actions.}
-	\note[item]{The only observables are the current state and rewards}
-	\note[item]{To achieve exact equivalence between solving the MDP and standard likelihood maximization we will need to define a likelihood that is proportional to the expected future return.}
+
+	\note[item]{To achieve exact equivalence between solving the MDP and standard likelihood maximization we will define a likelihood function that is proportional to the expected future return, and then maximize it.}
 	\note[item]{This is most easily done by considering a \emph{mixture of finite-time MDPs}.}
 	\note[item]{By a finite-time MDP we mean one which is limited in time by T, and which emits a reward variable only at the very final time step, as illustrated for various T in figure 2.}
-	\note{DRAW Figure 2. on the board!}
+	\note[item]{The only observables are the starting-state and reward vars.}
+% 	\note[item]{In probabilistic computing, the Likelihood function is one of the fundamental elements which we can use to solve problems.}
+	\note{DRAW Figure 2. on the board! For general T. ($\forall T$).}
 }
 \makeatother
 
@@ -337,7 +366,7 @@ Ben Gurion University}
     \begin{corollary}
         $L_T^{\policy}(i) = (1 - \gamma) V^{\policy}(i)$
     \end{corollary}
-    \note<1->[item]{What we are trying to do is solve an MDP, which is to find a policy that maximizes the future reward. The approach here is to define a likelihood we we would like to maximize, and by maximizing the likelihood we will also maximize the expected future reward.}
+    \note<1->[item]{What we are trying to do is solve an MDP, which is to find a policy that maximizes the future reward. The approach here is to define a likelihood function which is proportional to $V^\policy(i)$, such that by maximizing the likelihood we will also maximize the expected future reward.}
     \note<2->[item]{For a sequence length $T$, the time-bounded MDP allows us to formulate a likelihood proportional to the expected future return for that run.}
     \note<3->[item]{The mixture of time-bounded MDPs allows us a likelihood proportional to the expected future return for any run, regardless of the episode length.}
     \note<4->[item]{This likelihood is, for the discounted time prior $P(T) = \gamma^T(1-\gamma)$, proportional to the expected discounted future return.}
@@ -373,20 +402,20 @@ Ben Gurion University}
     \end{block}
     \pause
     \begin{block}{E-step}
-        For a given \policy{}, compute posteriors $P(T \mid x_0 = A, r = 1; \policy)$ and $P(x_{1:T}, a_{1:T} \mid x_0 = A, r = 1, T; \policy)$
+        For a given \policy{}, compute posteriors $P(x_{1:T}, a_{1:T} \mid x_0 = A, r = 1, T; \policy)$ and $P(T \mid x_0 = A, r = 1; \policy)$.
     \end{block}
     \pause
     \begin{block}{M-step}
         Adapt parameters $\policy$ to optimize $V^{\policy}(A)$
     \end{block}
-	\note[item]{The EM algorithm (or family of algorithms) is an iterative approach that cycles between two modes. The first mode attempts to estimate the missing or latent variables, called the estimation step or E-step. The second mode attempts to optimize the parameters of the model to best explain the data, called the maximization-step or M-step.}
-	\note[item]{Formulating the objective function in terms of a likelihood allows us to apply Expectation-Maximization to find optimal parameters (the policy \policy{}) of our model. All action and state variables (except for $x_0$ are hidden variables).}
+	\note[item]{The EM algorithm (or family of algorithms) is an iterative approach that cycles between two modes. The first mode attempts to estimate the missing (or latent) variables, called the estimation step or E-step. The second mode attempts to optimize the parameters of the model to best explain the data, called the maximization-step or M-step.}
+	\note[item]{Formulating the objective function in terms of a likelihood allows us to apply Expectation-Maximization to find optimal parameters (the policy \policy{}) of our model. All action and state variables (except for $x_0$) are hidden variables.}
 	\note[item]{The E-step will, for a given $\policy$, compute posteriors over state-action sequences as well as $T$ conditioned on $x_0 = A$ and $r=1$}
-	\note[item]{The M-step then adapts the model parameters $\policy$ to optimize the expected likelihood (expectations then taken w.r.t. the posteriors calculated in the E-step.}
+	\note[item]{The M-step then adapts the model parameters $\policy$ to optimize the expected likelihood (expectations then taken w.r.t. the posteriors calculated in the E-step).}
 	\note[item]{Conceptually, the E-step in this Markovian model is straight-forward. However, the special structure of the finite-time MDPs will allow for certain simplifications and save us from performing separate inference sweeps in all finite-time MDPs}
 \end{frame}
 
-\begin{frame}<1-4>{E-step: forward-backward in all MDPs synchronously}
+\begin{frame}<1-5>{E-step: forward-backward in all MDPs synchronously}
     \only<1>{
     \begin{block}{Simplifying notation}
        \begin{enumerate}
@@ -396,7 +425,7 @@ Ben Gurion University}
     \end{block}
     }
     
-    \only<2,3>{
+    \only<2,3,5>{
     % \begin{definition}["seed" for backward propagation]
     % $\hat{\beta}(i) = P(r = 1 \mid x_T = i ; \policy) = \sum\limits_a P(r=1 \mid a_T=a, x_T = i) \pi_{ai}$
     % \end{definition}
@@ -415,7 +444,7 @@ Ben Gurion University}
         \end{columns}
     \end{block}
     }
-    \only<3->{
+    \only<3, 4>{
     \begin{block}{Backward Propagation (temp.)}
         \begin{columns}[b]
                \begin{column}{3cm}
@@ -448,7 +477,7 @@ Ben Gurion University}
     %     Where $\hat{\beta}(i) = P(r = 1 \mid x_T = i ; \policy) = \sum\limits_a P(r=1 \mid a_T=a, x_T = i) \pi_{ai}$
     % \end{block}
     % }
-    \only<4>{
+    \only<4,5>{
     \begin{block}{Backward Propagation (corrected)}
         \begin{columns}[b]
                \begin{column}{3cm}
@@ -466,16 +495,21 @@ Ben Gurion University}
     }
 
     \note<1>[item]{Since we assume the transition probabilities to be stationary, we may use the simpler notations.}
-    \note<2, 3>[item]{We will only show the algorithm for the discrete case, but I promise you that the EM algorithm works also for the continuous case. Examples in the paper.}
+    \note<1>[item]{So now we don't write the names of the random variables.}
+    \note<1>[item]{This reads: the probability of transitioning from state i to state j, given action a.}
+    \note<1>[item]{This reads: the probability of transitioning from state i to state j, given policy \policy{}.}
+    \note<2, 3>[item]{We will only show the algorithm for the discrete case, but later we will discuss another inference technique based on the EM algorithm which works for the continuous case.}
     \note<2, 3>[item]{Specifically, for the discrete case, the algorithm used is called the forward-backward algorithm. It is a form of belief propagation through message passing.}
     \note<2, 3>[item]{In the E-step, we consider a fixed given policy \policy{} and all the quantities we compute depend on \policy{} even if not explicitly annotated.}
     \note<2, 3>[item]{For a single MDP of finite time T we perform a forward and backward propagation as shown. $\alpha_t$ is the "location" belief state at time $t$, i.e., the probability distribution over states, conditioned on the initial state and parameterized by policy \policy{}.).
     }
-    \note<3->[item]{$\beta_t$ is the reward belief state, i.e. we assume that at time $t$ we are at state $x_t$, and we ask what is the probability of observing a reward, parameterized by policy \policy{}. $\hat{\beta}$ is the starting "seed" for the process. And then we go backward one time step at a time, using $\beta_{t+1}$ to calculate $\beta_t$.}
+    \note<3,4>[item]{$\beta_t$ is the reward belief state, i.e. we assume that at time $t$ we are at state $x_t$, and we ask what is the probability of observing a reward, parameterized by policy \policy{}. $\hat{\beta}$ is the starting "seed" for the process. And then we go backward one time step at a time, using $\beta_{t+1}$ to calculate $\beta_t$.}
     \note<3, 4>[item]{We find that all the $\alpha$-quantities do not depend on $T$ in any way, i.e., they are valid for all MDPs of any finite time $T$. This is not true for the $\tilde{\beta}$-quantities when defined as above.}
     \note<4>[item]{However, we can use a simple trick, namely define the $\beta$'s to be indexed backward in time (with the 'time-to-go' $\tau$), and get:}
     \note<4>[item]{Defined in that way, all $\beta$-quantities do indeed not depend on $T$. For a specific MDP of finite time $T$, setting $\tau = T - t$ would allow us to retrieve the traditional forward-indexed $\tilde{\beta}$-quantities.}
-    \note<4>[item]{This means that we can perform $\alpha$- and $\beta$- propagation in parallel, incrementing $t$ and $\tau$ synchronously, and can retrieve the $\alpha$'s and $\beta$'s for all MDPs of any finite time $T$. Although we introduce a mixture of MDPs we only have to perform a single forward and backward sweep. This procedure is, from the point of view of ordinary HMMs, quite unusual - it is possible because in our specific setup we only condition on the very first ($x_0 = A$) and very last state ($r = 1$).}
+    \note<5>[item]{Since the $\alpha, \beta$'s are independent of $T$, we can perform $\alpha$- and $\beta$- propagation in parallel, incrementing $t$ and $\tau$ synchronously, and can retrieve the $\alpha$'s and $\beta$'s for all MDPs of any finite time $T$.}
+    \note<5>[item]{Although we introduce a mixture of MDPs we only have to perform a single forward and backward sweep.}
+    \note<5>[item]{This procedure is, from the point of view of ordinary HMMs, quite unusual - it is possible because in our specific setup we only condition on the very first ($x_0 = A$) and very last state ($r = 1$).}
     % \note<4>[item]{Apart from the implementation of discounting with the time prior, this is the main reason why we considered the mixture of finite-time MDPs in the first place, instead of a single time-unbounded MDP that could emit rewards at any times (figure 1).}
 \end{frame}
 
@@ -488,7 +522,7 @@ Ben Gurion University}
 \begin{frame}{M-step: the policy update}
     \only<1-3>{
 	\begin{definition}[expected complete log-likelihood]
-	$Q(\pi^*, \pi) = \sum_T \sum_{x_{0:T}, a_{0:T}} P(x_{0:T}, a_{0:T}, T \mid r = 1; \policy)$
+	$Q(\pi^*, \pi) = \sum_T \sum_{x_{0:T}, a_{0:T}} P(x_{0:T}, a_{0:T}, T \mid r = 1; \policy) \log P(r=1, x_{0:T}, a_{0:T}, T; \policy^*)$
 	\end{definition}
 	}
 	\only<2-3>{
@@ -496,22 +530,23 @@ Ben Gurion University}
 	    Maximizing $Q(\pi^*, \pi)$ w.r.t. $\pi^*$ is achieved by setting\\$\pi_{ai}^* = P(a_t = a \mid x_t = i, r=1; \policy)$
 	\end{fct}
 	}
-	\only<3>{
+	\only<3, 4>{
 	\begin{hwv}
-	exploiting the structure of the MDP, we can also write the likelihood as
+	exploiting the structure of the MDP, we can write:
 	\begin{smashedalign}
-	    P(r=1 \mid x_0=i; \policy) = &\sum\limits_{aj} P(r=1 ; a_t=a, x_t = j ; \policy^*) \pi_{aj}^*\\&\cdot P(x_t = j \mid x_0 = i ; \policy^*)
+	    P(r=1 \mid x_0=i; \policy) = &\sum\limits_{aj} P(r=1 \mid a_t=a, x_t = j ; \policy^*) \pi_{aj}^*\\&\cdot P(x_t = j \mid x_0 = i ; \policy^*)
 	\end{smashedalign}
 	\end{hwv}
 	}
 	\only<4>{
-	\begin{hwv}
-    	exploiting the structure of the MDP, we can also write the likelihood as
-    	\begin{smashedalign}
-    	    P(r=1 \mid x_0=i; \policy) = &\sum\limits_{aj} P(r=1 ; a_t=a, x_t = j ; \policy^*) \pi_{aj}^*\\&\cdot P(x_t = j \mid x_0 = i ; \policy^*)
-    	\end{smashedalign}
-	\end{hwv}
-	\begin{block}{}
+% 	\begin{hwv}
+%     	exploiting the structure of the MDP, we can write:
+%     	\begin{smashedalign}
+%     	    P(r=1 \mid x_0=i; \policy^*) = &\sum\limits_{aj} P(r=1 \mid a_t=a, x_t = j ; \policy^*) \pi_{aj}^*\\&\cdot P(x_t = j \mid x_0 = i ; \policy^*)
+%     	\end{smashedalign}
+% 	\end{hwv}
+	\begin{block}{Thus}
+	   Maximizing the \emph{action-conditioned likelihood}
 	     \begin{columns}[b]
               \begin{column}{2.5cm}
                       $\pi_{ai}^{*} = \delta_{a=a^{*}(i)}$
@@ -521,10 +556,8 @@ Ben Gurion University}
               \end{column}
         \end{columns}
 	\end{block}
-
     }
-	
-	\note<1->[item]{The standard M-step in an EM-algorithm maximizes the \emph{expected complete log-likelihood} w.r.t. the new parameters $\pi^*$, where expectations over the latent variables $(T, x_{0:T}, a_{0:T}$ were taken w.r.t. the posterior given the old parameters $\pi$.}
+	\note<1->[item]{The standard M-step in an EM-algorithm maximizes the \emph{expected complete log-likelihood} w.r.t. the new parameters $\pi^*$, where expectations over the latent variables $(T, x_{0:T}, a_{0:T}$) are taken w.r.t. the posterior given the old parameters $\pi$.}
 	\note<2->[item]{In our case, in strong analogy to the standard HMM case, this turns out to assign the new parameters to the posterior action probability}
 	\note<3->[item]{Maximizing this expression w.r.t. $\pi_{aj}^*$ can be done separately for every $j$ and is thus independent of $P(x_t = j \mid x_0 = i ; \policy^*)$ and thereby also independent of $t$ because $P(r= 1 \mid a_t = a, x_t = j; \policy^*)$ is so.}
 	\note<4->[item]{Using the E-step we can approximate the first term and maximize $\sum_a P(r = 1 \mid a_t = a, x_t = j; \policy) \pi_{aj}^*$ via:}
@@ -534,38 +567,42 @@ Ben Gurion University}
 
 \subsection{Relation to Policy Iteration}
 \begin{frame}{Relation to Policy Iteration}
-    \only<1-6>{
+    \only<1-7>{
+    \begin{alertblock}{Question}
+    What is the relation between EM and Policy iteration?
+    \end{alertblock}
+    \pause
     \begin{block}{E-step: Policy Evaluation}
         \setbeamercolor{itemize/enumerate body}{fg=gray}
          \begin{enumerate}[<+-|alert@+>]
              \item $\beta_\tau(i) \propto (V^{\policy}(i) \textit{ of the MDP of time } T = \tau)$.
-             \item $V^{pi}(i) = \frac{1}{1 - \gamma} \sum_T P(T) \beta_T(i)$.
+             \item $V^{\pi}(i) = \frac{1}{1 - \gamma} \sum_T P(T) \beta_T(i)$.
              \item Hence, \emph{the E-step performs a policy evaluation}.
              \item Additionally, \emph{it yields the time, state and action posteriors}.
          \end{enumerate}
     \end{block}
     }
-    \only<6>{
+    \only<7>{
     \begin{block}{M-step: Policy Update}
          \begin{enumerate}[<alert@+>]
              \item Maximizing the Q-function w.r.t. the action $a$ and state $i$.
          \end{enumerate}
     \end{block}
     }
-    \only<7-8>{
+    \only<8-9>{
     \begin{alertblock}{Thus,}
-         the EM-algorithm using exact inference and belief representation is  effectively equivalent to Policy Iteration but computes the necessary quantities in a different way.
+         the EM-algorithm using exact inference and belief representation is  effectively \emph{equivalent} to Policy Iteration but computes the necessary quantities in a different way.
     \end{alertblock}
     }
-    \only<8>{
+    \only<9>{
     \begin{alertblock}{However,}
-         when using approximate inference or belief representations 
+         when using approximate inference or belief representations, the EM-algorithm and Policy Iteration are qualitatively \emph{different}.
     \end{alertblock}
     }
     \note[item]{The $\beta$-quantities computed during backward-propagation are actually the value function for a single MDP of finite time $T$.}
     \note[item]{More precisely, comparing eq (9) with the reward likelihood (3) for the MDP of finite time T and the and the reward definition 2.1 of the value function, we have that \emph{the $\beta$-quantity with $\tau$ time to go at the ($i$th state) is proportional to the Value function of the MDP at time T=$\tau$.}}
     \note[item]{Accordingly, the full value function is the mixture of the $\beta$'s, when a discount time prior is chosen}
-    \note[item]{Additionally, yields ... which have no traditional analogue.}
+    \note[item]{Additionally, yields time,state,action posteriors which have no traditional analogue.}
     
 \end{frame}
 
@@ -585,10 +622,9 @@ Ben Gurion University}
 		}
 	}
 	\note[item]{We tested our probabilistic inference planning (PIP) algorithm on a discrete maze of size 100 X 100 and compared it to standard value iteration (VI) and policy iteration (PI).}
-	\note[item]{Walls of the maze are considered to be trap states (leading to unsucessful trials) and actions (north, south, east, west, stay) are highly noisy in that with a probability of 0.2 they lead to random transitions. In the experiment we chose a uniform time prior (discount factor $\gamma = 1$ and iterated the policy update $k=5$ times.}
-	\note[item]{To increase computational efficiency we exploited that the algorithm explicitly calculates posteriors which can be used to prune unnecessary message passings as explained in appendix A.}
-	\note[item]{For policy evaluation in PI we performed 100 iterations of standard value function updates.}
-	\note[item]{Figure 3(a) displays the posterior state visitng probabilities generated by our probabilistic inference planner (PIP) for a problem where rewards are given when some goal state is reached. }
+	\note[item]{Walls of the maze are considered to be trap states (leading to unsuccessful trials) and actions (north, south, east, west, stay) are highly noisy in that with a probability of 0.2 they lead to random transitions. In the experiment we chose a uniform time prior (discount factor $\gamma = 1$) and iterated the policy update $k=5$ times.}
+	\note[item]{+++:To increase computational efficiency we exploited that the algorithm explicitly calculates posteriors which can be used to prune unnecessary message passings as explained in appendix A.}
+	\note[item]{Figure 3(a) displays the posterior state visiting probabilities generated by our probabilistic inference planner (PIP) for a problem where rewards are given when some goal state is reached. }
 }
 \makeatother
 
@@ -602,15 +638,42 @@ Ben Gurion University}
 			\includegraphics[height=\beamer@frametextheight]{figs/fig_3b_maze_example.png}
 		}
 	}
-	\note[item]{Computational costs are measure by the number of evaluations of the environment $p(j \mid i, a)$ needed during the planning procedure. Figure 3(b) displays the probability of reaching the goal $P(r=1 \mid x_) = A; \policy$ against these costs for the same two start/goal state configurations.}
-	\note[item]{Note that for PIP (and PI) we can give this information only after a complete E- and M-step cycle (policy evaluation and update) which are the discrete dots (triangles) in the graph.}
+	\note[item]{Figure 3(b) displays the probability of reaching the goal $P(r=1 \mid x_) = A; \policy$ against these costs for the same two start/goal state configurations.}
+	\note[item]{Computational costs are measure by the number of evaluations of the environment $p(j \mid i, a)$ needed during the planning procedure. }
+	\note[item]{For policy evaluation in PI we performed 100 iterations of standard value function updates.}
 	\note[item]{The graph also displays the curve for VI, where the currently calculated value $V_A$ of the start state (which converges to $P(B \mid A)$ for the optimal policy) is plotted against how often VI evaluated $p(j \mid i, a)$.}
-	\note[item]{In contrast to VI and PI, the PIP algorithm takes considerable advantage of knowing the start state in this planning scenario: the forward propagation allows for the pruning and the early decision on cutoff times of the E-step as described in Appendix A. It should thus not be a surprise and not overstated that PIP is significantly more efficient in this specific scenario. Certainly, some kind of forward propagations could also be introduced for VI or PI to achieve similar efficiency. Nonetheless, our approach provides a principled way of pruning by exploiting the computation of proper posterios.}
 	\note[item]{A detailed inspection of the policies computed by all three methods showed that they are equal for states which have significantly non-zero state visiting probabilities.}
+	\note[item]{+++: In contrast to VI and PI, the PIP algorithm takes considerable advantage of knowing the start state in this planning scenario: the forward propagation allows for the pruning and the early decision on cutoff times of the E-step as described in Appendix A. It should thus not be a surprise and not overstated that PIP is significantly more efficient in this specific scenario. Certainly, some kind of forward propagations could also be introduced for VI or PI to achieve similar efficiency. Nonetheless, our approach provides a principled way of pruning by exploiting the computation of proper posteriors.}
+	\note[item]{+++: Note that for PIP (and PI) we can give this information only after a complete E- and M-step cycle (policy evaluation and update) which are the discrete dots (triangles) in the graph.}
 }
 \makeatother
 
 \subsection{Stochastic optimal control}
+\begin{frame}{Stochastic optimal control - examples}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.25\textheight]{figs/fig_4ab_control_example.png}
+        % \caption{Caption}
+        \label{fig:my_label}
+    \end{figure}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.25\textheight]{figs/fig_4cd_control_example.png}
+        % \caption{Caption}
+        \label{fig:my_label}
+    \end{figure}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.25\textheight]{figs/fig_4ef_control_example.png}
+        % \caption{Caption}
+        \label{fig:my_label}
+    \end{figure}
+    \note[item]{We address the problem of \emph{stochastic optimal control} in the case of a \emph{continuous state and control space}. (both continuous state and continuous control).}
+    \note[item]{We assume Gaussian belief states as representations for $\alpha$'s and $\beta$'s and propagate forward-backward.}
+    \note[item]{This example shows that the framework naturally allows to transfer other inference techniques to the problem of solving MDPs.}
+    \note[item]{+++:use the unscented transform to handle also non-linear transition dynamics (see K. Murphy Ph.D. 2002).}
+    \note[item]{+++:using Gaussian belief states implies that the effective value function (Section 5) becomes a mixture of Gaussians.}
+\end{frame}
 
 \begin{frame}{Stochastic optimal control - 'walker'}
     \begin{figure}
@@ -622,33 +685,67 @@ Ben Gurion University}
     \vspace*{-0.6cm}
     \begin{alertblock}{}
     \begin{itemize}
-        \item $P(x' \mid u, x) = \mathcal{N}(x', \phi(u, x), Q + (|u|/\mu)^2 I)$ is \emph{transitions}.
+        \item $P(x' \mid u, x) = \mathcal{N}(x', \phi(u, x), Q + 0\cdot (|u|/\mu)^2 I)$ is \emph{transitions}.
         \item $\alpha_0(x) = \mathcal{N}(x, (0,0), .01I)$ \quad \quad \quad \quad \quad \quad \quad is   \emph{start-state}.
         \item $P(r=1 \mid x) = \mathcal{N}(x, (1,1), diag(.0001,.1))$ is \emph{goal}.
         \item $\phi(u, x) = x + .1u$ \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad is \emph{control-law}.
     \end{itemize}
     \end{alertblock}
     
-    \note[item]{We address the problem of \emph{stochastic optimal control} in the case of a \emph{continuous state and control space}. (both continuous state and continuous control).}
-    \note[item]{Figure 4ab shows the learned control policy \policy{} and the forward simulation given this policy by displaying the covariance ellipses for $\alpha_{0:T}(x)$ after $k=3$ EM iterations.}
+    \note[item]{Figure 4ab shows the learned control policy \policy{} and the forward simulation ($\alpha$) given this policy by displaying the covariance ellipses for $\alpha_{0:T}(x)$ after $k=3$ EM iterations.}
     \note[item]{\emph{What we find is a control policy that reduces errors in $x$-dimension more strongly than in $y$-direction, leading to a tangential approach.}}
     \note[item]{As a transition model we assume .(eq). where $\phi(u, x)$ is a non-linear function, $Q$ is a constant noise covariance, and we introduced a parameter $\mu$ for an additional noise term that is squared in the control signal.}
-    \note[item]{We assume Gaussian belief states as representations for $\alpha$'s and $\beta$'s and propagate forward-backward.}
     \note[item]{This goal region is heavily skewed in that rewards depend more on the precision in the x-dimension than the y-dimension.}
     \note[item]{When choosing $\mu=0$, (no control-dependent noise), the optimal control policy will try to jumpy directly to the goal $(1,1)$. Hence, we first consider the solution when manually constraining the norm $|u|$ to be small ('walker')}
-    \note[item]{This example shows that the framework naturally allows to transfer other inference techniques to the problem of solving MDPs.}
-    \note[item]{+++:use the unscented transform to handle also non-linear transition dynamics (see K. Murphy Ph.D. 2002).}
-    \note[item]{+++:using Gaussian belief states implies that the effective value function (Section 5) becomes a mixture of Gaussians.}
 \end{frame}
 
 
 \begin{frame}{Stochastic optimal control - 'golfer'}
-    \includegraphics[width=\textwidth]{figs/fig_4cd_control_example.png}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\textwidth]{figs/fig_4cd_control_example.png}
+        % \caption{}
+        \label{fig:my_label}
+    \end{figure}
+    \vspace*{-0.6cm}
+    \begin{alertblock}{}
+    \begin{itemize}
+        \item $P(x' \mid u, x) = \mathcal{N}(x', \phi(u, x), Q + (|u|/1)^2 I)$ is \emph{transitions}.
+        \item $\alpha_0(x) = \mathcal{N}(x, (0,0), .01I)$ \quad \quad \quad \quad \quad \quad \quad is   \emph{start-state}.
+        \item $P(r=1 \mid x) = \mathcal{N}(x, (1,1), diag(.0001,.1))$ is \emph{goal}.
+        \item $\phi(u, x) = x + .1u$ \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad is \emph{control-law}.
+    \end{itemize}
+    \end{alertblock}
+    \note[item]{Next we can investigate what the effect of control-dependent noise is without a constraint on the amplitude of $u$.}
+    \note[item]{Figure 4cd displays results (after $k=3$ iters) for $\mu=1$}
+    \note[item]{As before, (left) learned policy, (right) forward simulations $\alpha$'s)}
+    \note[item]{The process actually resembles a golf player: the stronger the hit, the more noise.}
+    \note[item]{The optimal strategy is to hit fairly hard at the beginning, hopefully coming closer to the goal, such that later a number of smaller and more precise hits can be made.}
+    \note[item]{The reason for the small control signals around the goal region is that small steps have much more accuracy and reward epxectation is already fairly large for just the $x$-coordinate being close to 1.}
 \end{frame}
 
 
 \begin{frame}{Stochastic optimal control - 'phase space'}
-    \includegraphics[width=\textwidth]{figs/fig_4ef_control_example.png}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\textwidth]{figs/fig_4ef_control_example.png}
+        % \caption{}
+        \label{fig:my_label}
+    \end{figure}
+    \vspace*{-0.6cm}
+    \begin{alertblock}{}
+    \begin{itemize}
+        \item $P(x' \mid u, x) = \mathcal{N}(x', \phi(u, x), Q + (|u|/10)^2 I)$ is \emph{transitions}.
+        \item $\alpha_0(x) = \mathcal{N}(x, (0,0), .001I)$ \quad \quad \quad \quad \quad \quad \quad is   \emph{start-state}.
+        \item $P(r=1 \mid x) = \mathcal{N}(x, (1,1), .001I)$  \quad \quad \quad \quad is \emph{goal}.
+        \item $\phi(x, u) = (x_1 + .1x_2, x_2 + .1u)$ \quad \quad \quad \quad \quad \quad is \emph{control-law}.
+    \end{itemize}
+    \end{alertblock}
+
+    \note[item]{Finally, we think of $x$ being a phase space and consider the dynamics $\phi(x, u) = (x_1 + .1x_2, x_2 + .1u)$ where $u$ is the 1-dimensional acceleration of the velocity $x_2$, and $x_1$ is a position.}
+    \note[item]{This time we set the start and goal to (0,0) and (1,0) respectively, both with variance .001 and choose $\mu=10$.}
+    \note[item]{The agent learns to approach a new position under phase space dynamics}
+    \note[item]{Figure 4ef display the result and show nicely how the learned control policy approaches the new position on the $x$-axis by first gaining and then reducing velocity.}
 \end{frame}
 
 

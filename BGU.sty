@@ -1,3 +1,16 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BGU Template Theme
+% Noam Siegel, Ben Gurion University
+% 
+\newcommand{\licensetext}{{\tiny\CcNote{\CcLongnameByNcSa}}}
+\newcommand{\insertshortcredits}{Toussaint \& Storkey, 2006}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% Credits 
+%%%%%%% Zhipeng He's template available at https://www.overleaf.com/latex/templates/qut-beamer-theme/krhyqjpbcwzk
+%%%%%%% Licensed Creative Commons CC BY 4.0
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \mode<presentation>
 
 \newif\ifbeamer@secheader
@@ -16,13 +29,13 @@
     \end{beamercolorbox}
     \begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,%
       leftskip=.3cm,rightskip=.3cm plus1fil]{author in head/foot}%
-      \leavevmode{\usebeamerfont{author in head/foot}\insertshortauthor}%
+      \leavevmode{\usebeamerfont{author in head/foot}\insertshortauthor{} \quad \licensetext{}}%
       \hfill%
       {\usebeamerfont{institute in head/foot}\usebeamercolor[fg]{institute in head/foot}\insertshortinstitute}%
     \end{beamercolorbox}%
     \begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,%
       leftskip=.3cm,rightskip=.3cm plus1fil]{title in head/foot}%
-      {\usebeamerfont{title in head/foot}\insertshorttitle}%
+      {\usebeamerfont{title in head/foot}\insertshorttitle{} \quad \insertshortcredits{}}%
       \hfill%
       {\usebeamerfont{frame number}\usebeamercolor[fg]{frame number}\insertframenumber~\frameofframes~\inserttotalframenumber}
     \end{beamercolorbox}%
